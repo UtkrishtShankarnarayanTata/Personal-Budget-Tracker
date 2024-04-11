@@ -1,0 +1,60 @@
+class Transaction:
+    def __init__(self, category, amount):
+        self.category = category
+        self.amount = amount
+
+    def __str__(self):
+        return f"{self.category}: ${self.amount}"
+
+class BudgetTracker:
+    def __init__(self):
+        self.income = 0
+        self.expenses = []
+        self.categories = set()
+
+    def add_income(self, amount):
+        self.income += amount
+
+    def add_expense(self, category, amount):
+        self.expenses.append(Transaction(category, amount))
+        self.categories.add(category)
+
+    def calculate_budget(self):
+        total_expenses = sum(transaction.amount for transaction in self.expenses)
+        remaining_budget = self.income - total_expenses
+        return remaining_budget
+
+    def analyze_expenses(self):
+        expense_summary = {}
+        for category in self.categories:
+            total_spent = sum(transaction.amount for transaction in self.expenses if transaction.category == category)
+            expense_summary[category] = total_spent
+        return expense_summary
+
+    def save_transactions(self, filename):
+        with open(filename, 'w') as file:
+            file.write(f"Income:{self.income}\n")
+            for transaction in self.expenses:
+                file.write(f"{transaction.category},{transaction.amount}\n")
+
+    def load_transactions(self, filename):
+        with open(filename, 'r') as file:
+            self.income = float(file.readline().split(':')[1])
+            for line in file:
+                category, amount = line.strip().split(',')
+                self.expenses.append(Transaction(category, float(amount)))
+                self.categories.add(category)
+
+def main():
+    budget_tracker = BudgetTracker()
+
+    try:
+        budget_tracker.load_transactions("transactions.txt")
+    except FileNotFoundError:
+        pass
+
+    while True:
+        # Your main menu and user interaction code here
+
+if __name__ == "__main__":
+    main()
